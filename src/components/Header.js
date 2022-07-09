@@ -1,6 +1,7 @@
 import React from 'react';
 
-export const Header = () => {
+export const Header = ({onClickBasket}) => {
+
     return (
         <header className="header d-flex justify-between">
             <div className="d-flex ">
@@ -16,7 +17,7 @@ export const Header = () => {
                 </div>
             </div>
             <ul className="user-block d-flex justify-between">
-                <li><img className="basket" src="/img/basket.png" alt="basket"/></li>
+                <li onClick={()=>onClickBasket(true)}><img className="basket" src="/img/basket.png" alt="basket"/></li>
                 <li><span>800 y.e.</span></li>
                 <li><img className="like" src="/img/like-white.png" alt="like"/></li>
                 <li><img className="user" src="/img/user.png" alt="user"/></li>
