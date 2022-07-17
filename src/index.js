@@ -4,11 +4,15 @@ import App from './App';
 
 import './index.scss';
 import 'macro-css';
+// import {BrowserRouter, Router} from "react-router-dom";
+import {BrowserRouter, BrowserRouter as Router} from 'react-router-dom';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <App />
+      <BrowserRouter>
+          <App />
+      </BrowserRouter>
   </React.StrictMode>
 );
 
