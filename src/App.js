@@ -1,6 +1,6 @@
 import './App.css';
 import {Header} from "./components/Header";
-import {Drawer} from "./components/Drawer";
+import {Drawer} from "./components/Drawer/Drawer";
 import {createContext, useEffect, useState} from "react";
 import axios from "axios";
 import {Route, Routes} from "react-router-dom";
@@ -17,9 +17,6 @@ function App() {
     const [searchValue, setSearchValue] = useState('');  //стейт д/поиска в инпуте
     const [basket, setBasket] = useState(false);  // стейт для закрытия корзины
     const [isLoading, setLoading] = useState(true); //храним сотсояние готовности загрузки
-    // const [totalSum, setTotalSum] = useState(0);       //храним  общую сумму корзины
-
-    // console.log(itemsBasket.reduce((sum, i) => sum + i.price, 0));
 
     useEffect(() => {
         // // fetch('https://62c95de9d9ead251e8bab5e5.mockapi.io/taroItems').then(res => {
@@ -44,18 +41,29 @@ function App() {
 
         // ========= но чтоб внутри испол async нужно ее запси в ф-ю и потом вызывть
         async function fetchData() {
+            try {
+                // setLoading(true)
+                // можно так и можно без Промис ол
+                const [ basketResponse, favorResponse, itemsResponse ] = await Promise.all([
+                    axios.get('https://62c95de9d9ead251e8bab5e5.mockapi.io/cart'),
+                    axios.get('https://62c95de9d9ead251e8bab5e5.mockapi.io/favorites'),
+                    axios.get('https://62c95de9d9ead251e8bab5e5.mockapi.io/taroItems')
+                ])
 
-            // setLoading(true)
-            const basketResponse = await axios.get('https://62c95de9d9ead251e8bab5e5.mockapi.io/cart');
-            const favorResponse = await axios.get('https://62c95de9d9ead251e8bab5e5.mockapi.io/favorites');
-            const itemsResponse = await axios.get('https://62c95de9d9ead251e8bab5e5.mockapi.io/taroItems');
+                // setLoading(true)
+                // const basketResponse = await axios.get('https://62c95de9d9ead251e8bab5e5.mockapi.io/cart');
+                // const favorResponse = await axios.get('https://62c95de9d9ead251e8bab5e5.mockapi.io/favorites');
+                // const itemsResponse = await axios.get('https://62c95de9d9ead251e8bab5e5.mockapi.io/taroItems');
 
-            setLoading(false)
+                setLoading(false)
 
-            //здесь обязательная поочередность должна быть
-            setItemsBasket(basketResponse.data)
-            setFavorites(favorResponse.data)
-            setItems(itemsResponse.data)
+                //здесь обязательная поочередность должна быть
+                setItemsBasket(basketResponse.data)
+                setFavorites(favorResponse.data)
+                setItems(itemsResponse.data)
+            } catch (error) {
+                alert('Mistake first request - Promise.all')
+            }
         }
 
         fetchData();
@@ -83,7 +91,7 @@ function App() {
                 setItemsBasket(prev => [...prev, obj]);  //визуально отображать инфу
             }
         } catch (error) {
-            alert('Can not add in favorites')
+            alert('Can not add in basket')
         }
     }
 
@@ -110,8 +118,13 @@ function App() {
     }
 
     const delItemInBasket = (obj) => {
-        axios.delete(`https://62c95de9d9ead251e8bab5e5.mockapi.io/${obj}`);
-        setItemsBasket(itemsBasket.filter(i => i !== obj))
+        try {
+            axios.delete(`https://62c95de9d9ead251e8bab5e5.mockapi.io/${obj}`);
+            setItemsBasket(itemsBasket.filter(i => i !== obj))
+        } catch(error) {
+            alert('Error delete item in basket')
+        }
+
     }
 
     const onChangeSearchInput = (e) => {
@@ -126,23 +139,39 @@ function App() {
     // в контекст закидываю те данные с кот буду работать
     return (
         <AppContext.Provider
-            value={{items, favorites, isItemAdded, onAddToFavorites, setBasket, setItemsBasket, itemsBasket}}>
+            value={{
+                items,
+                favorites,
+                isItemAdded,
+                onAddToFavorites,
+                setBasket,
+                setItemsBasket,
+                itemsBasket,
+                addItemInBasket
+            }}>
             <>
                 }
                 <div className="wrapper clear">
                     <Header onClickBasket={setBasket}/>
 
-                    {basket && <Drawer
+                    {/*можно вывести так корзину а можно как нижу через визибл хиддиен*/}
+                    {/*{ basket && <Drawer*/}
+                    {/*    itemsBasket={itemsBasket}*/}
+                    {/*    onClickClose={setBasket}*/}
+                    {/*    delItemInBasket={delItemInBasket}*/}
+                    {/*/>*/}
+                    {/*}*/}
+                    <Drawer
                         itemsBasket={itemsBasket}
                         onClickClose={setBasket}
                         delItemInBasket={delItemInBasket}
+                        opened={basket}
                     />
-                    }
 
                     <Routes>
                         {/*тут в пропсі передавали 2 єл но потом воспользовалась контекстом*/}
-                        <Route path="/favor" element={<Favor />}/>
-                        <Route path="/orders" element={<Orders />} />
+                        <Route path="/favor" element={<Favor/>}/>
+                        <Route path="/orders" element={<Orders/>}/>
                         <Route path="/" element={
                             <Home
                                 searchValue={searchValue}
@@ -159,8 +188,7 @@ function App() {
                 </div>
             </>
         </AppContext.Provider>
-    )
-        ;
+    );
 }
 
 export default App;

@@ -5,10 +5,17 @@ import axios from "axios";
 export const Orders = () => {
     const [orders, setOrders] = useState([]);
 
+    //т.к. эта стр не имеет ничего общего с др эл то мы в ней отдельно пишем useEffect и запрос на заказы
+    //решено выводить заказы все вместе, не разделяю по номеру и не группируя. Поэтому их нужно обединить
     useEffect(() => {
         (async () => {
-            const { data } = await axios.get('https://62c95de9d9ead251e8bab5e5.mockapi.io/orders');
-            console.log(data)
+            try {
+                const { data } = await axios.get('https://62c95de9d9ead251e8bab5e5.mockapi.io/orders');
+                //console.log(data.map(i => i.items).flat())  // [Array(1), Array(2)] получила масси массивов и теперь соединила в один через flat чтоб получить массив обектов [{…}, {…}, {…}]
+                setOrders(data.reduce((acc, i) => [...acc, ...i.items], []));
+            } catch (error) {
+                alert('Mistakes request orders')
+            }
         })();
     }, [])
 
@@ -17,14 +24,14 @@ export const Orders = () => {
             <h1 className="title bookmark">My orders</h1>
 
             <div className="bookmark d-flex flex-wrap justify-around">
-
-                <div className="d-flex flex-wrap justify-around">
                     {
-                        [].map(i => (
-                            <Card />
+                        orders.map(i => (
+                            <Card
+                                key={i.id}
+                                {...i}
+                            />
                         ))
                     }
-                </div>
 
             </div>
         </section>

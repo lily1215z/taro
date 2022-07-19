@@ -1,9 +1,10 @@
 import React, {useState} from 'react';
-import {Info} from "./Info";
+import {Info} from "../Info";
 import axios from "axios";
-import {useCart} from "../hooks/useCart";
+import {useCart} from "../../hooks/useCart";
+import style from './Drawer.module.scss'
 
-export const Drawer = ({onClickClose, itemsBasket = [], delItemInBasket }) => {
+export const Drawer = ({onClickClose, itemsBasket = [], delItemInBasket, opened }) => {
     const [isOrderComplete, setIsOrderComplete] = useState(false);  //это инфа кот появится после того как чел сделал заказ
     const [orderId, setOrderId] = useState(null);                   //д/того чтоб получить с бєка номер заказа
     const [isLoading, seIsLoading] = useState(false);               //дизаблить кнопку когда идет загрузка
@@ -29,8 +30,8 @@ export const Drawer = ({onClickClose, itemsBasket = [], delItemInBasket }) => {
     }
 
     return (
-        <div className="overlay">
-            <div className="drawer d-flex flex-column">
+        <div className={`${style.overlay} ${opened ? style.overlayVisisble : ''}`}>
+            <div className={`${style.drawer} d-flex flex-column`}>
                 <h2 className="basket-title">Basket</h2>
                 <div onClick={() => onClickClose(false)} className="basket-close"><img src="/img/close.png"/></div>
 

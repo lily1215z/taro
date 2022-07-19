@@ -3,15 +3,13 @@ import {useContext} from "react";
 import {AppContext} from "../App";
 
 export const Favor = () => {
-    const {favorites, onAddToFavorites} = useContext(AppContext);
+    const {addItemInBasket, favorites, onAddToFavorites} = useContext(AppContext);
 
     return (
         <section className="section-cards">
             <h1 className="title bookmark">My bookmarks</h1>
 
             <div className="bookmark d-flex flex-wrap justify-around">
-
-                <div className="d-flex flex-wrap justify-around">
                     {
                         favorites.map(i => (
                             <Card
@@ -19,14 +17,14 @@ export const Favor = () => {
                                 // id={i.id}
                                 // title={i.title}
                                 // price={i.price}
-                                // url={i.url}
+                                // url={i.url} чтоб всё не передавать по отдельности то пишу {...i}
                                 {...i}
                                 favorite={true}
                                 onAddToFavorites={onAddToFavorites}
+                                addItemInBasket={addItemInBasket}
                             />
                         ))
                     }
-                </div>
 
             </div>
         </section>
